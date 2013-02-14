@@ -29,6 +29,10 @@ Reference: https://techknowhow.library.emory.edu/blogs/sturnbu/2011/01/26/instal
 
 Linux
 -----
+1. Install dependencies
+
+    sudo apt-get install python-virtualenv python2.7-dev build-essential
+
 1. Set up virtualenv:
 
     mkdir -p /tmp/fabric && cd /tmp/fabric
