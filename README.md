@@ -14,7 +14,7 @@ If you're trying to run this on windows, you need to:
 
     mkdir C:\tmp\fabric
     cd c:\tmp\fabric
-    virtualenv .
+    virtualenv --system-site-packages .
     Scripts\activate.bat
     pip install fabric cuisine fabtools
 
@@ -33,17 +33,17 @@ Linux
 
     sudo apt-get install python-virtualenv python2.7-dev build-essential
 
-1. Set up virtualenv:
+2. Set up virtualenv:
 
     mkdir -p /tmp/fabric && cd /tmp/fabric
     virtualenv .
     . bin/activate
     pip install fabric cuisine fabtools
 
-2. Install fabfile to /tmp/fabric
+3. Install fabfile to /tmp/fabric
 
-3. Run
+4. Run
 
-   . bin/activate
-   fab help
+    . bin/activate
+    fab help
 

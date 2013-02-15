@@ -62,6 +62,7 @@ class InstallDjango(object):
         """
         Do a complete install
         """
+        self.upgrade_system()
         self.install_prereqs()
         self.create_user()
         self.checkout_project()
@@ -70,6 +71,13 @@ class InstallDjango(object):
         self.install_nginx()
         self.install_gunicorn()
         self.run_tests()
+
+    def upgrade_system(self):
+        if self.util.get_package_manager() == 'apt':
+            sudo(r'apt-get update && apt-get upgrade')
+        elif self.util.get_package_manager() == 'yum':
+            # TODO: untested
+            sudo(r'yum update && yum upgrade')
 
     def install_prereqs(self):
         select_package(self.util.get_package_manager())
@@ -114,11 +122,11 @@ class InstallDjango(object):
         with cd(self.virtualenv_dir):
             # TODO: don't re-virtualenv if not necessary
             sudo(r'virtualenv .', user=self.user_name)
-            # TODO: install all requirements.txt
+            # TODO: install all requirements.txt inside virtualenv
             #sudo(r'pip install -r %s', user=self.user_name)
 
     def create_symlink(self):
-        (basedir, symlink_location) = self.www_dir.rsplit(os.sep, 1)
+        (basedir, symlink_location) = self.www_dir.rsplit('/', 1)
         # workaround for bug: dir_ensure doesn't use mkdir -p
         sudo('mkdir -p "%s"' % basedir)
         with cd(basedir):
@@ -136,7 +144,12 @@ class InstallDjango(object):
             proxy_url='http://localhost:8000')
 
     def install_gunicorn(self):
-        # TODO pip install, runner script, gevent
+        # TODO pip install gunicorn inside virtualenv
+
+        # TODO gunicorn launcher script
+
+        # TODO install gevent, add -k gevent to gunicorn launcher script
+
         pass
 
     def run_tests(self):
