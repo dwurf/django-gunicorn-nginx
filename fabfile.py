@@ -43,6 +43,7 @@ class UtilClass(object):
         else:
             raise EnvironmentError('Unknown distribution')
 
+
 class InstallDjango(object):
     def __init__(self):
         self.user_name = 'django'
@@ -51,10 +52,14 @@ class InstallDjango(object):
         self.www_dir = r'/var/www/django'
         self.repo_dir = r'/var/repo/django_project'
         self.repo_django_root = r'/'
+        self.django_requirements_txt = r'local-requirements.txt'
         self.virtualenv_dir = r'/var/venv/django'
         self.repo_url = r'https://github.com/django/djangoproject.com'
 
         self.vcs = 'git'
+
+        # required by fabric, a dependency of this particular django install
+        self.install_packages = ['python-dev', 'build-essential'] 
 
         self.util = UtilClass()
 
@@ -72,9 +77,14 @@ class InstallDjango(object):
         self.install_gunicorn()
         self.run_tests()
 
+    def run_virtualenv(self, command):
+        with cd(self.virtualenv_dir):
+            sudo('. bin/activate && ' + command,
+                user=self.user_name)
+
     def upgrade_system(self):
         if self.util.get_package_manager() == 'apt':
-            sudo(r'apt-get update && apt-get upgrade')
+            sudo(r'apt-get -q update && apt-get -qy upgrade')
         elif self.util.get_package_manager() == 'yum':
             # TODO: untested
             sudo(r'yum update && yum upgrade')
@@ -92,6 +102,9 @@ class InstallDjango(object):
 
         if not command_check('virtualenv'):
             package_ensure('python-virtualenv')
+
+        for pkg in self.install_packages:
+            package_ensure(pkg)
 
     def create_user(self):
         user_ensure(self.user_name)
@@ -120,10 +133,13 @@ class InstallDjango(object):
                 owner=self.user_name,
                 group=self.group_name)
         with cd(self.virtualenv_dir):
-            # TODO: don't re-virtualenv if not necessary
-            sudo(r'virtualenv .', user=self.user_name)
-            # TODO: install all requirements.txt inside virtualenv
-            #sudo(r'pip install -r %s', user=self.user_name)
+            sudo('[[ -f bin/activate ]] || virtualenv .',
+                user=self.user_name)
+            self.run_virtualenv(r'pip install -r %s' % '/'.join((
+                self.repo_dir,
+                self.repo_django_root,
+                self.django_requirements_txt
+            )))
 
     def create_symlink(self):
         (basedir, symlink_location) = self.www_dir.rsplit('/', 1)
