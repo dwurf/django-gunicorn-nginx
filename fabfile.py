@@ -3,6 +3,7 @@ fabfile for installing Django/nginx/gunicorn onto a fresh Linux server
 """
 
 from fabric.api import local, settings, abort, run, cd, sudo
+from fabric import operations
 from fabric.contrib.console import confirm
 from cuisine import select_package, package_ensure
 from cuisine import command_check, command_ensure
@@ -135,7 +136,7 @@ class InstallDjango(object):
         with cd(self.virtualenv_dir):
             sudo('[[ -f bin/activate ]] || virtualenv .',
                 user=self.user_name)
-            self.run_virtualenv(r'pip install -r %s' % '/'.join((
+            self.run_virtualenv(r'pip -q install -r %s' % '/'.join((
                 self.repo_dir,
                 self.repo_django_root,
                 self.django_requirements_txt
@@ -160,13 +161,33 @@ class InstallDjango(object):
             proxy_url='http://localhost:8000')
 
     def install_gunicorn(self):
-        # TODO pip install gunicorn inside virtualenv
+        self.run_virtualenv('pip -q install gunicorn')
 
-        # TODO gunicorn launcher script
+        operations.put(
+            'gunicorn-launcher.sh', 
+            self.virtualenv_dir + '/bin/', 
+            use_sudo=True, mode=750)
 
-        # TODO install gevent, add -k gevent to gunicorn launcher script
+        if self.util.get_package_manager == 'apt':
+            operations.put(
+                'gunicorn.conf', 
+                '/etc/init/', 
+                use_sudo=True, mode=644)
+            sudo('echo "%s" >> "%s"' % 
+                (self.virtualenv_dir + '/bin/gunicorn-launcher.sh', '/etc/init/gunicorn.conf'))
+        else:
+            operations.put(
+                'gunicorn.sh', 
+                self.virtualenv_dir + '/bin/', 
+                use_sudo=True, mode=750)
 
-        pass
+        # TODO install gevent. This is non-critical and might fail so we go to
+        # warn-only mode 
+        #with settings(warn_only=True):
+        #    package_ensure('libevent')
+        #    self.run_virtualenv('pip -q install gevent')
+        #
+        #   # TODO: add -k gevent to gunicorn launcher script
 
     def run_tests(self):
         # TODO
