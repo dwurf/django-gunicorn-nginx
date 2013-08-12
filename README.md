@@ -5,12 +5,14 @@ Fabric deploy scripts to install django, gunicorn and nginx on a bare metal Linu
 
 Windows
 -------
+nginx won't run on windows, however the fabric script can be launched
+from a windows machine.
 If you're trying to run this on windows, you need to:
- o Download pycrypto (v2.6) from 
+* Download pycrypto (v2.6) from 
     http://www.voidspace.org.uk/python/modules.shtml#pycrypto
- o Download pywin32 from http://sourceforge.net/projects/pywin32/files/
- o Install both libraries
- o Open a command prompt and run the following
+* Download pywin32 from http://sourceforge.net/projects/pywin32/files/
+* Install both libraries
+* Open a command prompt and run the following
 
     mkdir C:\tmp\fabric
     cd c:\tmp\fabric
@@ -18,8 +20,8 @@ If you're trying to run this on windows, you need to:
     Scripts\activate.bat
     pip install fabric cuisine fabtools
 
- o Now place this fabfile in C:\tmp\fabric. 
- o You can now do the following in a command prompt to run the fabfile
+* Now place this fabfile in C:\tmp\fabric. 
+* You can now do the following in a command prompt to run the fabfile
 
     cd c:\tmp\fabric
     Scripts\activate.bat
@@ -33,7 +35,7 @@ Linux
 
     sudo apt-get install python-virtualenv python2.7-dev build-essential
 
-2. Set up virtualenv:
+2. Set up virtualenv
 
     mkdir -p /tmp/fabric && cd /tmp/fabric
     virtualenv .
